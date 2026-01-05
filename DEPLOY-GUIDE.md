@@ -14,11 +14,12 @@ Este guia irá orientá-lo no processo completo de deploy da aplicação Azure G
 4. [Configurar CORS no Storage Account](#4-configurar-cors-no-storage-account)
 5. [Gerar SAS Token](#5-gerar-sas-token)
 6. [Criar Azure Web App](#6-criar-azure-web-app)
-7. [Build da Aplicação](#7-build-da-aplicação)
-8. [Deploy no Azure App Services](#8-deploy-no-azure-app-services)
+7. [Deploy via Deployment Center (Recomendado)](#7-deploy-via-deployment-center-recomendado-)
+8. [Deploy Automático](#8-deploy-automático)
 9. [Configurar a Aplicação](#9-configurar-a-aplicação)
 10. [Testar a Aplicação](#10-testar-a-aplicação)
 11. [Troubleshooting](#11-troubleshooting)
+12. [Métodos Alternativos de Deploy](#12-métodos-alternativos-de-deploy)
 
 ---
 
@@ -27,24 +28,10 @@ Este guia irá orientá-lo no processo completo de deploy da aplicação Azure G
 Antes de começar, certifique-se de ter:
 
 - ✅ **Conta Azure** ativa (pode ser a conta de estudante)
-- ✅ **Node.js** versão 18 ou superior instalado
-- ✅ **Git** instalado no seu computador
-- ✅ **Visual Studio Code** ou outro editor de código
-- ✅ Conhecimento básico de terminal/linha de comando
+- ✅ **Conta GitHub** com o repositório do projeto
+- ✅ Conhecimento básico do Portal Azure
 
-### Verificar instalações
-
-```bash
-# Verificar Node.js
-node --version
-# Deve retornar v18.x.x ou superior
-
-# Verificar npm
-npm --version
-
-# Verificar Git
-git --version
-```
+> 💡 **Nota**: Não é necessário instalar Node.js, Git ou VS Code localmente! O deploy será feito diretamente pelo Azure.
 
 ---
 
@@ -254,155 +241,145 @@ https://app-galeria-midias.azurewebsites.net
 
 ---
 
-## 7. Build da Aplicação
+## 7. Deploy via Deployment Center (Recomendado) ⭐
 
-### Passo 7.1: Clonar o repositório
+> 🚀 **Esta é a forma mais simples!** O Azure faz o build e deploy automaticamente quando você faz push no GitHub.
 
-```bash
-# Clone o repositório do projeto
-git clone https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git
+### Passo 7.1: Acessar Deployment Center
 
-# Entre na pasta do projeto
-cd SEU_REPOSITORIO
-```
+1. No Portal Azure, acesse seu **Web App** recém-criado
+2. No menu lateral, clique em **"Deployment Center"** (em Deployment)
 
-### Passo 7.2: Instalar dependências
+### Passo 7.2: Conectar ao GitHub
 
-```bash
-# Instalar dependências
-npm install
-```
+1. Em **Source**, selecione **"GitHub"**
+2. Clique em **"Authorize"** para conectar sua conta GitHub
+3. Autorize o Azure a acessar seus repositórios
 
-### Passo 7.3: Gerar build de produção
+### Passo 7.3: Configurar repositório
 
-```bash
-# Criar build otimizado
-npm run build
-```
+Preencha os campos:
 
-Isso criará uma pasta `dist/` com os arquivos estáticos da aplicação.
+| Campo | Valor |
+|-------|-------|
+| **Organization** | Seu usuário ou organização do GitHub |
+| **Repository** | Selecione o repositório do projeto |
+| **Branch** | `main` (ou a branch principal) |
 
-### Passo 7.4: Verificar o build
+### Passo 7.4: Configurar Build
 
-A estrutura da pasta `dist/` deve ser similar a:
-```
-dist/
-├── index.html
-├── assets/
-│   ├── index-xxxxx.js
-│   └── index-xxxxx.css
-└── ...
-```
+Em **Build provider**, selecione:
+- **GitHub Actions** (recomendado)
 
----
+O Azure irá criar automaticamente um workflow do GitHub Actions.
 
-## 8. Deploy no Azure App Services
+### Passo 7.5: Salvar
 
-Existem várias formas de fazer o deploy. Vamos cobrir as duas mais comuns:
+1. Clique em **"Save"** no topo da página
+2. Aguarde a configuração (cerca de 1 minuto)
 
-### Opção A: Deploy via Azure CLI (Recomendado)
+### Passo 7.6: Verificar o workflow criado
 
-#### Passo 8.1: Instalar Azure CLI
-
-- **Windows**: [Download do instalador](https://aka.ms/installazurecliwindows)
-- **macOS**: `brew install azure-cli`
-- **Linux**: Consulte a [documentação oficial](https://docs.microsoft.com/cli/azure/install-azure-cli-linux)
-
-#### Passo 8.2: Login no Azure
-
-```bash
-az login
-```
-
-Isso abrirá o navegador para autenticação.
-
-#### Passo 8.3: Configurar startup command
-
-Para que o Azure sirva corretamente a aplicação SPA (Single Page Application), precisamos configurar:
-
-```bash
-az webapp config set \
-  --resource-group rg-galeria-midias \
-  --name app-galeria-midias \
-  --startup-file "pm2 serve /home/site/wwwroot/dist --no-daemon --spa"
-```
-
-#### Passo 8.4: Deploy dos arquivos
-
-```bash
-# Zipar a pasta dist
-cd dist
-zip -r ../deploy.zip .
-cd ..
-
-# Fazer deploy
-az webapp deployment source config-zip \
-  --resource-group rg-galeria-midias \
-  --name app-galeria-midias \
-  --src deploy.zip
-```
-
-### Opção B: Deploy via VS Code
-
-#### Passo 8.1: Instalar extensão Azure
-
-1. Abra o VS Code
-2. Vá em Extensions (Ctrl+Shift+X)
-3. Pesquise **"Azure App Service"**
-4. Instale a extensão da Microsoft
-
-#### Passo 8.2: Login e Deploy
-
-1. Clique no ícone do Azure na barra lateral
-2. Faça login na sua conta Azure
-3. Encontre seu Web App na lista
-4. Clique com botão direito → **"Deploy to Web App"**
-5. Selecione a pasta `dist/`
-6. Confirme o deploy
-
-### Opção C: Deploy via GitHub Actions (Avançado)
-
-Crie o arquivo `.github/workflows/azure-deploy.yml`:
+O Azure cria automaticamente o arquivo `.github/workflows/main_SEU-APP.yml` no seu repositório:
 
 ```yaml
-name: Deploy to Azure Web App
+# Este arquivo é criado AUTOMATICAMENTE pelo Azure
+name: Build and deploy Node.js app to Azure Web App
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-    
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        
-    - name: Install dependencies
-      run: npm ci
+      - uses: actions/checkout@v4
       
-    - name: Build
-      run: npm run build
+      - name: Set up Node.js version
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          
+      - name: npm install, build
+        run: |
+          npm install
+          npm run build --if-present
+          
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-app
+          path: dist
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: 'Production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
       
-    - name: Deploy to Azure Web App
-      uses: azure/webapps-deploy@v3
-      with:
-        app-name: 'app-galeria-midias'
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: './dist'
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: node-app
+          
+      - name: 'Deploy to Azure Web App'
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'SEU-APP'
+          slot-name: 'Production'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_XXX }}
+          package: .
 ```
 
-Para usar esta opção:
-1. No Portal Azure, vá ao Web App → **Deployment Center** → **Manage publish profile**
-2. Baixe o arquivo de perfil
-3. No GitHub, vá em **Settings** → **Secrets** → **Actions**
-4. Crie um secret chamado `AZURE_WEBAPP_PUBLISH_PROFILE` com o conteúdo do arquivo
+### Passo 7.7: Acompanhar o deploy
+
+1. Vá ao seu repositório no **GitHub**
+2. Clique na aba **"Actions"**
+3. Você verá o workflow rodando
+4. Aguarde até ficar verde (✅)
+
+### Passo 7.8: Configurar Startup Command
+
+Após o primeiro deploy, configure o comando de inicialização para SPA:
+
+1. No Web App, vá em **"Configuration"** no menu lateral
+2. Clique na aba **"General settings"**
+3. Em **"Startup Command"**, adicione:
+   ```
+   pm2 serve /home/site/wwwroot --no-daemon --spa
+   ```
+4. Clique em **"Save"**
+5. Aguarde o reinício do app
+
+> ⚠️ **Importante**: O startup command garante que todas as rotas da aplicação (como `/login` e `/admin`) funcionem corretamente.
+
+---
+
+## 8. Deploy Automático
+
+Após a configuração inicial:
+
+1. **Faça qualquer alteração** no código
+2. **Commit e push** para o GitHub:
+   ```bash
+   git add .
+   git commit -m "Minha alteração"
+   git push
+   ```
+3. O Azure **detecta automaticamente** o push
+4. O **build e deploy** são executados
+5. Em ~2-5 minutos, as alterações estão no ar!
+
+### Verificar status do deploy
+
+- **No Azure**: Web App → Deployment Center → Logs
+- **No GitHub**: Aba Actions → Workflow mais recente
 
 ---
 
@@ -491,7 +468,17 @@ Crie um arquivo `staticwebapp.config.json` na pasta `dist/`:
 }
 ```
 
-Ou configure o startup command conforme Seção 8.
+Ou configure o startup command conforme Seção 7, Passo 7.8.
+
+### Erro: Build falhou no GitHub Actions
+
+**Causa**: Dependências ou configuração incorretas.
+
+**Solução**:
+1. Vá no GitHub → aba **Actions** → clique no workflow que falhou
+2. Verifique os logs de erro
+3. Certifique-se que `package.json` e `package-lock.json` estão no repositório
+4. Verifique se o comando `npm run build` funciona localmente
 
 ### Aplicação não carrega após deploy
 
@@ -508,6 +495,56 @@ Ou configure o startup command conforme Seção 8.
 1. Verifique a URL do container (deve terminar com o nome do container)
 2. Verifique se o SAS Token está completo
 3. Teste acessando diretamente a URL do blob no navegador
+
+---
+
+## 12. Métodos Alternativos de Deploy
+
+> ℹ️ Estes métodos são opcionais. O método recomendado é o **Deployment Center** (Seção 7).
+
+### Opção A: Deploy via Azure CLI (Local)
+
+Se preferir fazer o build localmente:
+
+#### Pré-requisitos adicionais:
+- Node.js 18+ instalado
+- Azure CLI instalado
+
+```bash
+# 1. Clone o repositório
+git clone https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git
+cd SEU_REPOSITORIO
+
+# 2. Instale dependências e faça o build
+npm install
+npm run build
+
+# 3. Login no Azure
+az login
+
+# 4. Configure o startup command
+az webapp config set \
+  --resource-group rg-galeria-midias \
+  --name app-galeria-midias \
+  --startup-file "pm2 serve /home/site/wwwroot --no-daemon --spa"
+
+# 5. Zipar e fazer deploy
+cd dist
+zip -r ../deploy.zip .
+cd ..
+
+az webapp deployment source config-zip \
+  --resource-group rg-galeria-midias \
+  --name app-galeria-midias \
+  --src deploy.zip
+```
+
+### Opção B: Deploy via VS Code
+
+1. Instale a extensão **Azure App Service** no VS Code
+2. Faça login na conta Azure
+3. Clique com botão direito no Web App → **Deploy to Web App**
+4. Selecione a pasta `dist/` após o build
 
 ---
 
@@ -535,6 +572,7 @@ Para um ambiente de produção, considere:
 
 - [Documentação Azure Blob Storage](https://docs.microsoft.com/azure/storage/blobs/)
 - [Documentação Azure App Services](https://docs.microsoft.com/azure/app-service/)
+- [GitHub Actions para Azure](https://docs.microsoft.com/azure/app-service/deploy-github-actions)
 - [SAS Tokens](https://docs.microsoft.com/azure/storage/common/storage-sas-overview)
 - [CORS no Azure Storage](https://docs.microsoft.com/azure/storage/blobs/quickstart-storage-blobs-javascript-browser)
 
@@ -545,6 +583,7 @@ Para um ambiente de produção, considere:
 Parabéns! Você concluiu o deploy da aplicação Azure Gallery. Agora você tem:
 
 - ✅ Uma aplicação web hospedada no Azure App Services
+- ✅ Deploy automático via GitHub (push = deploy)
 - ✅ Armazenamento de mídias no Azure Blob Storage
 - ✅ Sistema de autenticação para administração
 - ✅ Interface moderna para gerenciar sua galeria de mídias
