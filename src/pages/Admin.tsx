@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, Settings, Trash2, RefreshCw, Cloud, X, CheckCircle } from 'lucide-react';
+import { Upload, Settings, Trash2, RefreshCw, Cloud, X, CheckCircle, Zap, Database, HardDrive, Cpu } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { MediaItem, UploadProgress } from '@/types/media';
 import { 
@@ -17,7 +17,6 @@ import { Lightbox } from '@/components/gallery/Lightbox';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
@@ -166,7 +165,6 @@ export default function Admin() {
       }
     }
 
-    // Clear completed uploads after delay
     setTimeout(() => {
       setUploads(prev => prev.filter(u => u.status !== 'completed'));
       loadMedia();
@@ -225,59 +223,77 @@ export default function Admin() {
       <Header />
       
       <main className="container py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground">Painel de Administração</h1>
-          <p className="mt-1 text-muted-foreground">
+        {/* Hero */}
+        <div className="mb-8 relative">
+          <div className="absolute inset-0 -z-10">
+            <div className="absolute top-0 left-1/4 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
+          </div>
+          
+          <div className="flex items-center gap-2 mb-3">
+            <div className="h-px w-8 bg-gradient-to-r from-primary to-transparent" />
+            <span className="text-xs font-mono text-primary uppercase tracking-widest">
+              Painel de Controle
+            </span>
+          </div>
+          <h1 className="text-3xl font-bold text-foreground tracking-tight">
+            Central de <span className="text-primary text-glow">Administração</span>
+          </h1>
+          <p className="mt-2 text-muted-foreground font-mono text-sm">
             Gerencie suas mídias e configurações do Azure Storage
           </p>
         </div>
 
         <Tabs defaultValue={isConfigured ? 'upload' : 'config'} className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="upload" className="gap-2">
+          <TabsList className="glass border border-border/50 p-1">
+            <TabsTrigger value="upload" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Upload className="h-4 w-4" />
               Upload
             </TabsTrigger>
-            <TabsTrigger value="media" className="gap-2">
-              <Cloud className="h-4 w-4" />
+            <TabsTrigger value="media" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Database className="h-4 w-4" />
               Mídias
             </TabsTrigger>
-            <TabsTrigger value="config" className="gap-2">
-              <Settings className="h-4 w-4" />
+            <TabsTrigger value="config" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Cpu className="h-4 w-4" />
               Configuração
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="upload" className="space-y-6">
             {!isConfigured ? (
-              <Card>
-                <CardContent className="py-10 text-center">
-                  <Settings className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">
-                    Configure o Azure Storage na aba "Configuração" para fazer upload de mídias.
-                  </p>
-                </CardContent>
-              </Card>
+              <div className="glass-strong rounded-2xl p-12 text-center">
+                <Settings className="mx-auto h-16 w-16 text-primary mb-4" />
+                <p className="text-muted-foreground font-mono">
+                  Configure o Azure Storage na aba "Configuração" para fazer upload de mídias.
+                </p>
+              </div>
             ) : (
               <>
-                <Card
-                  className={`border-2 border-dashed transition-colors ${
-                    isDragging ? 'border-primary bg-primary/5' : 'border-border'
+                <div
+                  className={`glass-strong rounded-2xl border-2 border-dashed transition-all duration-300 ${
+                    isDragging ? 'border-primary bg-primary/5 neon-glow' : 'border-border/50'
                   }`}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
                 >
-                  <CardContent className="py-10 text-center">
-                    <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                    <p className="text-lg font-medium text-foreground mb-2">
-                      Arraste arquivos aqui ou clique para selecionar
+                  <div className="p-12 text-center">
+                    <div className="relative inline-block mb-6">
+                      <div className="absolute inset-0 rounded-xl bg-primary/20 blur-xl animate-glow-pulse" />
+                      <div className="relative rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 p-6">
+                        <Cloud className="h-12 w-12 text-primary" />
+                      </div>
+                    </div>
+                    <p className="text-xl font-semibold text-foreground mb-2">
+                      Arraste arquivos aqui
                     </p>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Suporta imagens (JPG, PNG, GIF, WebP) e vídeos (MP4, WebM, OGG)
+                    <p className="text-sm font-mono text-muted-foreground mb-6">
+                      ou clique para selecionar • JPG, PNG, GIF, WebP, MP4, WebM
                     </p>
-                    <Button asChild>
+                    <Button asChild className="neon-glow bg-primary text-primary-foreground">
                       <label className="cursor-pointer">
+                        <Zap className="mr-2 h-4 w-4" />
                         Selecionar Arquivos
                         <input
                           type="file"
@@ -288,43 +304,47 @@ export default function Admin() {
                         />
                       </label>
                     </Button>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
 
                 {uploads.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Uploads em andamento</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {uploads.map((upload) => (
-                        <div key={upload.fileName} className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium truncate max-w-[200px]">
-                              {upload.fileName}
-                            </span>
-                            <div className="flex items-center gap-2">
-                              {upload.status === 'completed' && (
-                                <CheckCircle className="h-4 w-4 text-success" />
-                              )}
-                              {upload.status === 'error' && (
-                                <span className="text-xs text-destructive">{upload.error}</span>
-                              )}
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-6 w-6"
-                                onClick={() => clearUpload(upload.fileName)}
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </div>
+                  <div className="glass-strong rounded-xl p-6 space-y-4">
+                    <div className="flex items-center gap-2 text-sm font-mono text-muted-foreground mb-4">
+                      <HardDrive className="h-4 w-4 text-primary" />
+                      Uploads em andamento
+                    </div>
+                    {uploads.map((upload) => (
+                      <div key={upload.fileName} className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-mono truncate max-w-[200px]">
+                            {upload.fileName}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            {upload.status === 'completed' && (
+                              <CheckCircle className="h-4 w-4 text-success" />
+                            )}
+                            {upload.status === 'error' && (
+                              <span className="text-xs font-mono text-destructive">{upload.error}</span>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 hover:text-destructive"
+                              onClick={() => clearUpload(upload.fileName)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
                           </div>
-                          <Progress value={upload.progress} className="h-2" />
                         </div>
-                      ))}
-                    </CardContent>
-                  </Card>
+                        <div className="relative h-2 rounded-full bg-secondary overflow-hidden">
+                          <div 
+                            className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-accent transition-all duration-300"
+                            style={{ width: `${upload.progress}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </>
             )}
@@ -332,14 +352,16 @@ export default function Admin() {
 
           <TabsContent value="media" className="space-y-6">
             <div className="flex items-center justify-between">
-              <p className="text-muted-foreground">
+              <div className="flex items-center gap-3 text-sm font-mono text-muted-foreground">
+                <Database className="h-4 w-4 text-primary" />
                 {media.length} {media.length === 1 ? 'item' : 'itens'} na galeria
-              </p>
+              </div>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => loadMedia()}
                 disabled={isLoading}
+                className="glass border-border/50 hover:border-primary/50 hover:text-primary"
               >
                 <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
                 Atualizar
@@ -351,7 +373,7 @@ export default function Admin() {
                 {Array.from({ length: 10 }).map((_, i) => (
                   <div
                     key={i}
-                    className="aspect-square animate-pulse rounded-lg bg-secondary"
+                    className="aspect-square rounded-xl glass animate-pulse"
                   />
                 ))}
               </div>
@@ -364,53 +386,73 @@ export default function Admin() {
           </TabsContent>
 
           <TabsContent value="config">
-            <Card>
-              <CardHeader>
-                <CardTitle>Configuração do Azure Storage</CardTitle>
-                <CardDescription>
-                  Configure a conexão com seu Azure Blob Storage usando a URL do container e o SAS Token
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <div className="glass-strong rounded-2xl p-8 relative overflow-hidden">
+              {/* Corner accents */}
+              <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-primary rounded-tl-2xl" />
+              <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-primary rounded-tr-2xl" />
+              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-primary rounded-bl-2xl" />
+              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-primary rounded-br-2xl" />
+              
+              <div className="flex items-center gap-3 mb-6">
+                <div className="rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 p-3">
+                  <Settings className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-foreground">Configuração do Azure Storage</h2>
+                  <p className="text-sm font-mono text-muted-foreground">
+                    Conecte seu container usando URL e SAS Token
+                  </p>
+                </div>
+              </div>
+              
+              <div className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="containerUrl">URL do Container</Label>
+                  <Label htmlFor="containerUrl" className="text-sm font-mono text-muted-foreground uppercase">
+                    URL do Container
+                  </Label>
                   <Input
                     id="containerUrl"
                     type="url"
                     placeholder="https://suaconta.blob.core.windows.net/seucontainer"
                     value={containerUrl}
                     onChange={(e) => setContainerUrl(e.target.value)}
+                    className="h-12 glass border-border/50 focus:border-primary/50 font-mono text-sm"
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Exemplo: https://minhacontastorage.blob.core.windows.net/medias
-                  </p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="sasToken">SAS Token</Label>
+                  <Label htmlFor="sasToken" className="text-sm font-mono text-muted-foreground uppercase">
+                    SAS Token
+                  </Label>
                   <Input
                     id="sasToken"
                     type="password"
                     placeholder="sv=2021-06-08&ss=b&srt=sco&sp=rwdlacitfx..."
                     value={sasToken}
                     onChange={(e) => setSasToken(e.target.value)}
+                    className="h-12 glass border-border/50 focus:border-primary/50 font-mono text-sm"
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Shared Access Signature com permissões de leitura, escrita, listagem e exclusão
+                  <p className="text-xs font-mono text-muted-foreground">
+                    Permissões necessárias: leitura, escrita, listagem e exclusão
                   </p>
                 </div>
 
-                <Button onClick={handleSaveConfig} className="w-full">
+                <Button 
+                  onClick={handleSaveConfig} 
+                  className="w-full h-12 neon-glow bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                  <Zap className="mr-2 h-4 w-4" />
                   Salvar Configuração
                 </Button>
 
                 {isConfigured && (
-                  <p className="text-center text-sm text-success">
-                    ✓ Azure Storage configurado
-                  </p>
+                  <div className="flex items-center justify-center gap-2 text-sm font-mono text-success">
+                    <CheckCircle className="h-4 w-4" />
+                    Azure Storage conectado
+                  </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </main>
@@ -425,15 +467,15 @@ export default function Admin() {
       />
 
       <AlertDialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="glass-strong border-border/50">
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-foreground">Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription className="font-mono text-muted-foreground">
               Tem certeza que deseja deletar "{deleteTarget?.name}"? Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel className="glass border-border/50">Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
