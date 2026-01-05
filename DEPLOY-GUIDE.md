@@ -221,7 +221,7 @@ sp=racwdl&st=2024-01-05T14:38:32Z&se=2024-12-31T22:53:32Z&spr=https&sv=2024-11-0
 | **Resource group** | Mesmo do Storage Account (ex: `rg-galeria-midias`) |
 | **Name** | Nome único (ex: `app-galeria-midias`) - será a URL |
 | **Publish** | Code |
-| **Runtime stack** | Node 18 LTS |
+| **Runtime stack** | Node 20 LTS, 22 LTS ou 24 LTS (qualquer uma funciona) |
 | **Operating System** | Linux |
 | **Region** | Brazil South (mesma do Storage) |
 
@@ -301,7 +301,7 @@ jobs:
       - name: Set up Node.js version
         uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
+          node-version: '20.x'
           
       - name: npm install, build
         run: |
