@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react';
-import { X, ChevronLeft, ChevronRight, Download, Trash2 } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Download, Trash2, Maximize2 } from 'lucide-react';
 import { MediaItem } from '@/types/media';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -68,47 +68,57 @@ export function Lightbox({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-background/90 backdrop-blur-xl animate-fade-in"
       onClick={onClose}
     >
-      {/* Close button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute right-4 top-4 z-10 text-foreground hover:bg-secondary"
-        onClick={onClose}
-      >
-        <X className="h-6 w-6" />
-      </Button>
-
-      {/* Action buttons */}
-      <div className="absolute right-4 top-16 z-10 flex flex-col gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-foreground hover:bg-secondary"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleDownload();
-          }}
-          title="Download"
-        >
-          <Download className="h-5 w-5" />
-        </Button>
-        {showDeleteButton && onDelete && (
+      {/* Decorative grid */}
+      <div className="absolute inset-0 grid-pattern opacity-30 pointer-events-none" />
+      
+      {/* Top bar */}
+      <div className="absolute top-0 left-0 right-0 glass-strong border-b border-border/30 p-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Maximize2 className="h-4 w-4 text-primary" />
+          <span className="font-mono text-sm text-muted-foreground">
+            {currentIndex + 1} / {allMedia.length}
+          </span>
+        </div>
+        
+        <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="icon"
-            className="text-destructive hover:bg-destructive/10"
+            className="hover:text-primary hover:bg-primary/10"
             onClick={(e) => {
               e.stopPropagation();
-              onDelete(media);
+              handleDownload();
             }}
-            title="Deletar"
+            title="Download"
           >
-            <Trash2 className="h-5 w-5" />
+            <Download className="h-5 w-5" />
           </Button>
-        )}
+          {showDeleteButton && onDelete && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hover:text-destructive hover:bg-destructive/10"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(media);
+              }}
+              title="Deletar"
+            >
+              <Trash2 className="h-5 w-5" />
+            </Button>
+          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hover:text-foreground hover:bg-secondary"
+            onClick={onClose}
+          >
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
       </div>
 
       {/* Navigation buttons */}
@@ -116,7 +126,7 @@ export function Lightbox({
         <Button
           variant="ghost"
           size="icon"
-          className="absolute left-4 z-10 h-12 w-12 rounded-full text-foreground hover:bg-secondary"
+          className="absolute left-4 z-10 h-14 w-14 rounded-full glass hover:bg-primary/10 hover:text-primary transition-all"
           onClick={(e) => {
             e.stopPropagation();
             handlePrev();
@@ -129,12 +139,11 @@ export function Lightbox({
         <Button
           variant="ghost"
           size="icon"
-          className="absolute right-4 z-10 h-12 w-12 rounded-full text-foreground hover:bg-secondary"
+          className="absolute right-4 z-10 h-14 w-14 rounded-full glass hover:bg-primary/10 hover:text-primary transition-all"
           onClick={(e) => {
             e.stopPropagation();
             handleNext();
           }}
-          style={{ right: '4rem' }}
         >
           <ChevronRight className="h-8 w-8" />
         </Button>
@@ -143,32 +152,45 @@ export function Lightbox({
       {/* Media content */}
       <div 
         className={cn(
-          "relative max-h-[85vh] max-w-[90vw] animate-scale-in",
-          media.type === 'video' ? 'w-full max-w-4xl' : ''
+          "relative max-h-[80vh] max-w-[85vw] mt-16 animate-scale-in",
+          media.type === 'video' ? 'w-full max-w-5xl' : ''
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        {media.type === 'image' ? (
-          <img
-            src={media.url}
-            alt={media.name}
-            className="max-h-[85vh] max-w-full rounded-lg object-contain"
-          />
-        ) : (
-          <video
-            src={media.url}
-            controls
-            autoPlay
-            className="max-h-[85vh] w-full rounded-lg"
-          />
-        )}
+        <div className="relative rounded-xl overflow-hidden glass border border-border/30">
+          {/* Corner accents */}
+          <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-primary rounded-tl-xl z-10" />
+          <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-primary rounded-tr-xl z-10" />
+          <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-primary rounded-bl-xl z-10" />
+          <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-primary rounded-br-xl z-10" />
+          
+          {media.type === 'image' ? (
+            <img
+              src={media.url}
+              alt={media.name}
+              className="max-h-[75vh] max-w-full object-contain"
+            />
+          ) : (
+            <video
+              src={media.url}
+              controls
+              autoPlay
+              className="max-h-[75vh] w-full"
+            />
+          )}
+        </div>
 
         {/* Media info */}
-        <div className="absolute bottom-0 left-0 right-0 rounded-b-lg bg-gradient-to-t from-background/90 to-transparent p-4">
-          <p className="font-medium text-foreground">{media.name}</p>
-          <p className="text-sm text-muted-foreground">
-            {(media.size / 1024 / 1024).toFixed(2)} MB • {media.lastModified.toLocaleDateString('pt-BR')}
-          </p>
+        <div className="mt-4 glass-strong rounded-lg p-4 flex items-center justify-between">
+          <div>
+            <p className="font-medium text-foreground">{media.name}</p>
+            <p className="text-sm font-mono text-muted-foreground">
+              {(media.size / 1024 / 1024).toFixed(2)} MB • {media.lastModified.toLocaleDateString('pt-BR')}
+            </p>
+          </div>
+          <div className="px-3 py-1 rounded-full bg-primary/10 border border-primary/30">
+            <span className="text-xs font-mono text-primary uppercase">{media.type}</span>
+          </div>
         </div>
       </div>
     </div>
