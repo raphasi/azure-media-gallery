@@ -146,8 +146,8 @@ const Index = () => {
 
       {/* Footer */}
       <footer className="mt-auto border-t border-border/30 py-6">
-        <div className="container flex items-center justify-between text-xs font-mono text-muted-foreground">
-          <span>Azure Gallery v1.0</span>
+        <div className="container flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-mono text-muted-foreground">
+          <span>Desenvolvido por <span className="text-primary">Raphael Andrade</span> • Aplicação com fins Educacionais</span>
           <span className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-primary animate-glow-pulse" />
             Sistema Online
