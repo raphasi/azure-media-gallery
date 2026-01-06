@@ -243,7 +243,7 @@ https://app-galeria-midias-001.azurewebsites.net
 
 ## 7. Deploy via GitHub Actions (Recomendado) ⭐
 
-> 🚀 **Esta é a forma mais simples!** O repositório já vem com o workflow configurado. Você só precisa fazer 3 passos!
+> 🚀 **Esta é a forma mais simples!** O repositório já vem com o workflow configurado. Você só precisa criar **2 secrets** no GitHub!
 
 ---
 
@@ -252,9 +252,6 @@ https://app-galeria-midias-001.azurewebsites.net
 1. Acesse o [Portal Azure](https://portal.azure.com)
 2. Vá até o seu **Web App** criado na seção anterior
 3. Na página **Visão Geral** (Overview), localize o botão **"Baixar perfil de publicação"** (Download publish profile)
-
-   ![Download Publish Profile](https://docs.microsoft.com/azure/app-service/media/quickstart-custom-container/download-publish-profile.png)
-
 4. Clique no botão - um arquivo `.PublishSettings` será baixado para seu computador
 5. **NÃO feche este arquivo** - você vai precisar dele no próximo passo
 
@@ -262,7 +259,9 @@ https://app-galeria-midias-001.azurewebsites.net
 
 ---
 
-### ✅ Passo 7.2: Criar o Secret no GitHub
+### ✅ Passo 7.2: Criar os Secrets no GitHub
+
+Você precisa criar **2 secrets** no GitHub:
 
 1. Acesse seu repositório no **GitHub**
 2. Clique na aba **Settings** (Configurações)
@@ -273,6 +272,8 @@ https://app-galeria-midias-001.azurewebsites.net
    ```
 
 3. No menu lateral esquerdo, clique em **Secrets and variables** → **Actions**
+
+#### 🔑 Secret 1: AZURE_WEBAPP_PUBLISH_PROFILE
 
 4. Clique no botão verde **"New repository secret"**
 
@@ -287,56 +288,50 @@ https://app-galeria-midias-001.azurewebsites.net
 
 6. Clique em **"Add secret"**
 
-7. ✅ Você verá o secret criado na lista:
-   ```
-   AZURE_WEBAPP_PUBLISH_PROFILE    Updated just now
-   ```
+#### 🔑 Secret 2: AZURE_WEBAPP_NAME
+
+7. Clique novamente em **"New repository secret"**
+
+8. Preencha os campos:
+
+   | Campo | Valor |
+   |-------|-------|
+   | **Name** | `AZURE_WEBAPP_NAME` |
+   | **Secret** | O nome exato do seu Web App (ex: `app-galeria-joao-001`) |
+
+   > ⚠️ **IMPORTANTE**: Use o nome exato do Web App (aquele que aparece na URL, **sem** `.azurewebsites.net`)
+
+9. Clique em **"Add secret"**
+
+10. ✅ Você verá os 2 secrets criados na lista:
+    ```
+    AZURE_WEBAPP_NAME               Updated just now
+    AZURE_WEBAPP_PUBLISH_PROFILE    Updated just now
+    ```
 
 ---
 
-### ✅ Passo 7.3: Configurar o Nome do Web App
+### ✅ Passo 7.3: Executar o Deploy
 
-1. No seu repositório GitHub, navegue até a pasta `.github/workflows/`
-2. Abra o arquivo **`azure-deploy.yml`**
-3. Clique no ícone de **lápis** (✏️) para editar o arquivo
-4. Localize a **linha 12** que contém:
-
-   ```yaml
-   AZURE_WEBAPP_NAME: 'COLOQUE-O-NOME-DO-SEU-WEBAPP-AQUI'
-   ```
-
-5. Substitua `COLOQUE-O-NOME-DO-SEU-WEBAPP-AQUI` pelo **nome exato** do seu Web App
-
-   **Exemplo - Se seu Web App se chama `app-galeria-joao-001`:**
-   ```yaml
-   AZURE_WEBAPP_NAME: 'app-galeria-joao-001'
-   ```
-
-   > ⚠️ **IMPORTANTE**: Use o nome exato do Web App (aquele que aparece na URL, sem `.azurewebsites.net`)
-
-6. Clique em **"Commit changes..."**
-7. Na janela que abrir, clique em **"Commit changes"**
-
----
-
-### ✅ Passo 7.4: Verificar o Deploy
-
-Após o commit, o deploy inicia automaticamente:
+Agora você precisa disparar o workflow:
 
 1. No GitHub, clique na aba **"Actions"**
-2. Você verá um workflow em execução (🟡 círculo amarelo)
-3. Clique no workflow para acompanhar o progresso
-4. Aguarde até ficar **verde** (✅) - leva cerca de 2-3 minutos
+2. No menu lateral, clique em **"Deploy to Azure Web App"**
+3. Clique no botão **"Run workflow"** (à direita)
+4. Clique no botão verde **"Run workflow"**
+5. Aguarde o workflow executar (🟡 → ✅)
 
    ```
    ✅ build-and-deploy    Success in 2m 34s
    ```
 
-> ❌ **Se falhar**: Verifique se o nome do Web App está correto e se o secret foi criado corretamente.
+> 💡 **Dica**: Após a primeira execução, o deploy será **automático** a cada push na branch `main`!
+
+> ❌ **Se falhar**: Verifique se os 2 secrets foram criados com os nomes corretos.
 
 ---
 
-### ✅ Passo 7.5: Configurar Startup Command (Última etapa!)
+### ✅ Passo 7.4: Configurar Startup Command (Última etapa!)
 
 Esta configuração é **obrigatória** para que as rotas da aplicação funcionem:
 
@@ -367,15 +362,14 @@ https://SEU-WEB-APP.azurewebsites.net
 
 ---
 
-### 📋 Resumo dos 3 Passos
+### 📋 Resumo - Apenas 2 Secrets!
 
-| Passo | Onde | Ação |
-|-------|------|------|
-| 1️⃣ | Portal Azure | Baixar Publish Profile |
-| 2️⃣ | GitHub Settings | Criar secret `AZURE_WEBAPP_PUBLISH_PROFILE` |
-| 3️⃣ | GitHub (arquivo) | Editar nome do Web App na linha 12 |
+| Secret | Valor |
+|--------|-------|
+| `AZURE_WEBAPP_PUBLISH_PROFILE` | Conteúdo do arquivo `.PublishSettings` |
+| `AZURE_WEBAPP_NAME` | Nome do Web App (ex: `app-galeria-joao-001`) |
 
-> ⚠️ **Importante**: O startup command (Passo 7.5) garante que todas as rotas da aplicação (como `/login` e `/admin`) funcionem corretamente.
+> ⚠️ **Importante**: O startup command (Passo 7.4) garante que todas as rotas da aplicação (como `/login` e `/admin`) funcionem corretamente.
 
 ---
 
