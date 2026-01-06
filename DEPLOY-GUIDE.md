@@ -95,9 +95,9 @@ Preencha os campos:
 | Campo | Valor |
 |-------|-------|
 | **Subscription** | Sua assinatura Azure |
-| **Resource group** | Crie um novo ou use existente (ex: `rg-galeria-midias`) |
+| **Resource group** | Escolher o rg-prd-aue-001 |
 | **Storage account name** | Nome único (ex: `stgaleriamidias` - apenas letras minúsculas e números) |
-| **Region** | Brazil South (ou região mais próxima) |
+| **Region** | Canada Central |
 | **Performance** | Standard |
 | **Redundancy** | LRS (Locally-redundant storage) |
 
@@ -218,15 +218,15 @@ sp=racwdl&st=2024-01-05T14:38:32Z&se=2024-12-31T22:53:32Z&spr=https&sv=2024-11-0
 | Campo | Valor |
 |-------|-------|
 | **Subscription** | Sua assinatura |
-| **Resource group** | Mesmo do Storage Account (ex: `rg-galeria-midias`) |
-| **Name** | Nome único (ex: `app-galeria-midias`) - será a URL |
+| **Resource group** | Mesmo do Storage Account (rg-prd-aue-001) |
+| **Name** | Nome único (ex: `app-galeria-midias-001`) - será a URL |
 | **Publish** | Code |
 | **Runtime stack** | Node 20 LTS, 22 LTS ou 24 LTS (qualquer uma funciona) |
 | **Operating System** | Linux |
-| **Region** | Brazil South (mesma do Storage) |
+| **Region** | Austria East  (mesma do Storage) |
 
 **Aba Pricing plans:**
-- Selecione **Free F1** para desenvolvimento/testes
+- Selecione **Basic B1** para desenvolvimento/testes
 
 4. Clique em **"Review + create"**
 5. Clique em **"Create"**
@@ -236,7 +236,7 @@ sp=racwdl&st=2024-01-05T14:38:32Z&se=2024-12-31T22:53:32Z&spr=https&sv=2024-11-0
 
 Após a criação, anote a URL do seu Web App:
 ```
-https://app-galeria-midias.azurewebsites.net
+https://app-galeria-midias-001.azurewebsites.net
 ```
 
 ---
