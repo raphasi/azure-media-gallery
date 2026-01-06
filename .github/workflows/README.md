@@ -1,57 +1,47 @@
-# Deploy para Azure Web App
+# 🚀 Deploy para Azure Web App
 
-## Passo a Passo Simplificado
+## Passo a Passo (3 passos simples!)
 
-### 1. Criar o Web App no Azure
+### 1️⃣ Baixar o Publish Profile no Azure
 1. Acesse o [Portal Azure](https://portal.azure.com)
-2. Crie um novo **Web App** (App Service)
-3. Configure conforme necessário (Node 20 LTS, Linux)
+2. Vá no seu **Web App**
+3. Na página **Visão Geral**, clique em **Baixar perfil de publicação**
+4. Um arquivo `.PublishSettings` será baixado
 
-### 2. Configurar Deploy Automático
-1. No Web App criado, vá em **Centro de Implantação** (Deployment Center)
-2. Em "Origem", selecione **GitHub**
-3. Autorize sua conta GitHub
-4. Selecione o **repositório** e a **branch** `main`
-5. Clique em **Salvar**
+### 2️⃣ Criar o Secret no GitHub
+1. No seu repositório GitHub, vá em **Settings** > **Secrets and variables** > **Actions**
+2. Clique em **New repository secret**
+3. Nome: `AZURE_WEBAPP_PUBLISH_PROFILE`
+4. Valor: Abra o arquivo baixado com um editor de texto e **cole todo o conteúdo**
+5. Clique em **Add secret**
 
-### 3. Ajuste Obrigatório (IMPORTANTE!)
-Após o Azure criar o workflow automaticamente, você precisa fazer **UMA única alteração**:
+### 3️⃣ Editar o Nome do Web App
+1. Abra o arquivo `.github/workflows/azure-deploy.yml`
+2. Na **linha 12**, troque `COLOQUE-O-NOME-DO-SEU-WEBAPP-AQUI` pelo nome do seu Web App
+3. Faça commit da alteração
 
-1. Vá no seu repositório GitHub
-2. Acesse `.github/workflows/` e abra o arquivo `.yml` criado
-3. Encontre a seção de upload de artefato (procure por `actions/upload-artifact`)
-4. Mude a linha `path: .` para `path: dist`
-
-**Antes:**
-```yaml
-- name: Upload artifact for deployment job
-  uses: actions/upload-artifact@v4
-  with:
-    name: node-app
-    path: .
-```
-
-**Depois:**
-```yaml
-- name: Upload artifact for deployment job
-  uses: actions/upload-artifact@v4
-  with:
-    name: node-app
-    path: dist
-```
-
-### 4. Configurar Startup Command
-No Azure Web App, vá em **Configuração** > **Configurações gerais** > **Comando de inicialização**:
-
-```
-pm2 serve /home/site/wwwroot --no-daemon --spa
-```
-
-### 5. Pronto!
-Faça um commit e o deploy será automático!
+### ✅ Pronto!
+O deploy será automático a cada push na branch `main`!
 
 ---
 
-## Por que esse ajuste é necessário?
+## 🔧 Configuração do Web App (única vez)
 
-O Azure Deployment Center não sabe que esta é uma aplicação **Vite/React** que gera os arquivos de produção na pasta `dist`. Por padrão, ele tenta fazer upload de todo o projeto, mas precisamos apenas da pasta `dist` que contém o build final.
+No Azure Web App, configure o **Comando de inicialização**:
+
+1. Vá em **Configuração** > **Configurações gerais**
+2. Em **Comando de inicialização**, coloque:
+```
+pm2 serve /home/site/wwwroot --no-daemon --spa
+```
+3. Clique em **Salvar**
+
+---
+
+## ❓ Dúvidas Comuns
+
+**P: O deploy falhou, o que fazer?**
+R: Verifique se o nome do Web App está correto e se o secret foi criado corretamente.
+
+**P: Onde vejo os logs do deploy?**
+R: No GitHub, vá em **Actions** e clique no workflow para ver os detalhes.
