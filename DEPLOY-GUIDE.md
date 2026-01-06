@@ -241,123 +241,141 @@ https://app-galeria-midias-001.azurewebsites.net
 
 ---
 
-## 7. Deploy via Deployment Center (Recomendado) ⭐
+## 7. Deploy via GitHub Actions (Recomendado) ⭐
 
-> 🚀 **Esta é a forma mais simples!** O Azure faz o build e deploy automaticamente quando você faz push no GitHub.
+> 🚀 **Esta é a forma mais simples!** O repositório já vem com o workflow configurado. Você só precisa fazer 3 passos!
 
-### Passo 7.1: Acessar Deployment Center
+---
 
-1. No Portal Azure, acesse seu **Web App** recém-criado
-2. No menu lateral, clique em **"Deployment Center"** (em Deployment)
+### ✅ Passo 7.1: Baixar o Publish Profile no Azure
 
-### Passo 7.2: Conectar ao GitHub
+1. Acesse o [Portal Azure](https://portal.azure.com)
+2. Vá até o seu **Web App** criado na seção anterior
+3. Na página **Visão Geral** (Overview), localize o botão **"Baixar perfil de publicação"** (Download publish profile)
 
-1. Em **Source**, selecione **"GitHub"**
-2. Clique em **"Authorize"** para conectar sua conta GitHub
-3. Autorize o Azure a acessar seus repositórios
+   ![Download Publish Profile](https://docs.microsoft.com/azure/app-service/media/quickstart-custom-container/download-publish-profile.png)
 
-### Passo 7.3: Configurar repositório
+4. Clique no botão - um arquivo `.PublishSettings` será baixado para seu computador
+5. **NÃO feche este arquivo** - você vai precisar dele no próximo passo
 
-Preencha os campos:
+> 💡 **Dica**: O arquivo baixado contém credenciais de acesso ao seu Web App. Não compartilhe este arquivo publicamente!
 
-| Campo | Valor |
-|-------|-------|
-| **Organization** | Seu usuário ou organização do GitHub |
-| **Repository** | Selecione o repositório do projeto |
-| **Branch** | `main` (ou a branch principal) |
+---
 
-### Passo 7.4: Configurar Build
+### ✅ Passo 7.2: Criar o Secret no GitHub
 
-Em **Build provider**, selecione:
-- **GitHub Actions** (recomendado)
+1. Acesse seu repositório no **GitHub**
+2. Clique na aba **Settings** (Configurações)
 
-O Azure irá criar automaticamente um workflow do GitHub Actions.
+   ```
+   📁 Seu Repositório
+   ├── Code | Issues | Pull requests | Actions | Projects | Wiki | Security | Insights | ⚙️ Settings
+   ```
 
-### Passo 7.5: Salvar
+3. No menu lateral esquerdo, clique em **Secrets and variables** → **Actions**
 
-1. Clique em **"Save"** no topo da página
-2. Aguarde a configuração (cerca de 1 minuto)
+4. Clique no botão verde **"New repository secret"**
 
-### Passo 7.6: Verificar o workflow criado
+5. Preencha os campos:
 
-O Azure cria automaticamente o arquivo `.github/workflows/main_SEU-APP.yml` no seu repositório:
+   | Campo | Valor |
+   |-------|-------|
+   | **Name** | `AZURE_WEBAPP_PUBLISH_PROFILE` |
+   | **Secret** | Cole **TODO o conteúdo** do arquivo `.PublishSettings` baixado |
 
-```yaml
-# Este arquivo é criado AUTOMATICAMENTE pelo Azure
-name: Build and deploy Node.js app to Azure Web App
+   > 📋 **Como copiar o conteúdo**: Abra o arquivo `.PublishSettings` com o **Bloco de Notas** (Notepad), selecione tudo (Ctrl+A), copie (Ctrl+C) e cole no campo Secret.
 
-on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
+6. Clique em **"Add secret"**
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Set up Node.js version
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-          
-      - name: npm install, build
-        run: |
-          npm install
-          npm run build --if-present
-          
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v4
-        with:
-          name: node-app
-          path: dist
+7. ✅ Você verá o secret criado na lista:
+   ```
+   AZURE_WEBAPP_PUBLISH_PROFILE    Updated just now
+   ```
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-      
-    steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: node-app
-          
-      - name: 'Deploy to Azure Web App'
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: 'SEU-APP'
-          slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_XXX }}
-          package: .
-```
+---
 
-### Passo 7.7: Acompanhar o deploy
+### ✅ Passo 7.3: Configurar o Nome do Web App
 
-1. Vá ao seu repositório no **GitHub**
-2. Clique na aba **"Actions"**
-3. Você verá o workflow rodando
-4. Aguarde até ficar verde (✅)
+1. No seu repositório GitHub, navegue até a pasta `.github/workflows/`
+2. Abra o arquivo **`azure-deploy.yml`**
+3. Clique no ícone de **lápis** (✏️) para editar o arquivo
+4. Localize a **linha 12** que contém:
 
-### Passo 7.8: Configurar Startup Command
+   ```yaml
+   AZURE_WEBAPP_NAME: 'COLOQUE-O-NOME-DO-SEU-WEBAPP-AQUI'
+   ```
 
-Após o primeiro deploy, configure o comando de inicialização para SPA:
+5. Substitua `COLOQUE-O-NOME-DO-SEU-WEBAPP-AQUI` pelo **nome exato** do seu Web App
 
-1. No Web App, vá em **"Configuration"** no menu lateral
-2. Clique na aba **"General settings"**
-3. Em **"Startup Command"**, adicione:
+   **Exemplo - Se seu Web App se chama `app-galeria-joao-001`:**
+   ```yaml
+   AZURE_WEBAPP_NAME: 'app-galeria-joao-001'
+   ```
+
+   > ⚠️ **IMPORTANTE**: Use o nome exato do Web App (aquele que aparece na URL, sem `.azurewebsites.net`)
+
+6. Clique em **"Commit changes..."**
+7. Na janela que abrir, clique em **"Commit changes"**
+
+---
+
+### ✅ Passo 7.4: Verificar o Deploy
+
+Após o commit, o deploy inicia automaticamente:
+
+1. No GitHub, clique na aba **"Actions"**
+2. Você verá um workflow em execução (🟡 círculo amarelo)
+3. Clique no workflow para acompanhar o progresso
+4. Aguarde até ficar **verde** (✅) - leva cerca de 2-3 minutos
+
+   ```
+   ✅ build-and-deploy    Success in 2m 34s
+   ```
+
+> ❌ **Se falhar**: Verifique se o nome do Web App está correto e se o secret foi criado corretamente.
+
+---
+
+### ✅ Passo 7.5: Configurar Startup Command (Última etapa!)
+
+Esta configuração é **obrigatória** para que as rotas da aplicação funcionem:
+
+1. No **Portal Azure**, acesse seu Web App
+2. No menu lateral, clique em **"Configuração"** (Configuration)
+3. Clique na aba **"Configurações gerais"** (General settings)
+4. Localize o campo **"Comando de inicialização"** (Startup Command)
+5. Cole o seguinte comando:
+
    ```
    pm2 serve /home/site/wwwroot --no-daemon --spa
    ```
-4. Clique em **"Save"**
-5. Aguarde o reinício do app
 
-> ⚠️ **Importante**: O startup command garante que todas as rotas da aplicação (como `/login` e `/admin`) funcionem corretamente.
+6. Clique em **"Salvar"** (Save) no topo da página
+7. Clique em **"Continuar"** (Continue) na janela de confirmação
+8. Aguarde o reinício do app (cerca de 1 minuto)
+
+---
+
+### 🎉 Pronto! Seu deploy está configurado!
+
+Agora, toda vez que você fizer um **push** para a branch `main`, o deploy será **automático**!
+
+**Acesse sua aplicação:**
+```
+https://SEU-WEB-APP.azurewebsites.net
+```
+
+---
+
+### 📋 Resumo dos 3 Passos
+
+| Passo | Onde | Ação |
+|-------|------|------|
+| 1️⃣ | Portal Azure | Baixar Publish Profile |
+| 2️⃣ | GitHub Settings | Criar secret `AZURE_WEBAPP_PUBLISH_PROFILE` |
+| 3️⃣ | GitHub (arquivo) | Editar nome do Web App na linha 12 |
+
+> ⚠️ **Importante**: O startup command (Passo 7.5) garante que todas as rotas da aplicação (como `/login` e `/admin`) funcionem corretamente.
 
 ---
 
