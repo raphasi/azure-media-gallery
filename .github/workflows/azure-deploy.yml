@@ -1,0 +1,44 @@
+# Deploy para Azure Web App usando Publish Profile
+# INSTRUÇÕES: 
+# 1. No Azure: Web App > Visão Geral > Baixar perfil de publicação
+# 2. No GitHub: Settings > Secrets > Actions > New secret
+#    Nome: AZURE_WEBAPP_PUBLISH_PROFILE
+#    Valor: Cole TODO o conteúdo do arquivo baixado
+# 3. Edite a linha 12 abaixo com o nome do seu Web App
+
+name: Deploy to Azure Web App
+
+env:
+  AZURE_WEBAPP_NAME: 'COLOQUE-O-NOME-DO-SEU-WEBAPP-AQUI'  # ← EDITE ESTA LINHA
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: dist
