@@ -1,7 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Images, LogIn, LogOut, Settings, Hexagon } from 'lucide-react';
+import { Images, LogIn, LogOut, Hexagon, Server } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+
+// Identificador da instância (configurar via variável de ambiente no Azure)
+const INSTANCE_ID = import.meta.env.VITE_INSTANCE_ID || 'Local';
 
 export function Header() {
   const { isAuthenticated, logout } = useAuth();
@@ -26,6 +29,14 @@ export function Header() {
             </span>
           </div>
         </Link>
+
+        {/* Identificador da Instância - para demonstração de Load Balancing */}
+        <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-md bg-secondary/50 border border-border/50">
+          <Server className="h-3 w-3 text-primary" />
+          <span className="text-xs font-mono text-muted-foreground">
+            {INSTANCE_ID}
+          </span>
+        </div>
 
         <nav className="flex items-center gap-2">
           {isAuthenticated ? (
