@@ -2,12 +2,19 @@ import { Link, useLocation } from 'react-router-dom';
 import { Images, LogIn, LogOut, Hexagon, Server } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-
-// Identificador da instância (configurar via variável de ambiente no Azure)
-const INSTANCE_ID = import.meta.env.VITE_INSTANCE_ID || 'Local';
+import { useState, useEffect } from 'react';
 
 export function Header() {
   const { isAuthenticated, logout } = useAuth();
+  const [instanceId, setInstanceId] = useState('...');
+
+  // Carrega identificador da instância em runtime (sem precisar rebuild)
+  useEffect(() => {
+    fetch('/config.json')
+      .then(res => res.json())
+      .then(config => setInstanceId(config.instanceId || 'Local'))
+      .catch(() => setInstanceId('Local'));
+  }, []);
   const location = useLocation();
 
   return (
@@ -34,7 +41,7 @@ export function Header() {
         <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-md bg-secondary/50 border border-border/50">
           <Server className="h-3 w-3 text-primary" />
           <span className="text-xs font-mono text-muted-foreground">
-            {INSTANCE_ID}
+            {instanceId}
           </span>
         </div>
 
